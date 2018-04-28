@@ -2,7 +2,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 // var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
@@ -25,9 +26,15 @@ module.exports = {
             path.join(__dirname, 'src'), // location of your src
             {} // a map of your routes
         ),
+        new webpack.ContextReplacementPlugin(/\@angular(\\|\/)core(\\|\/)esm5/, path.join(__dirname, './src')),
         new HtmlWebpackPlugin({
             template: 'src/index.html'
-        })
+        }),
+        new BundleAnalyzerPlugin({
+            analyzerMode: "static",
+            reportFilename: "main.html",
+            openAnalyzer: false,
+          }),
     ],
     optimization: {
         splitChunks: {
@@ -37,15 +44,27 @@ module.exports = {
             // automaticNameDelimiter: '~',
             name: true,
             cacheGroups: {
-                vendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    priority: -10
-                },
-            default: {
-                    minChunks: 2,
-                    priority: -20,
-                    reuseExistingChunk: true
-                }
+                // vendor: {
+                //     chunks: "initial",
+                //     test: "vendor",
+                //     name: "vendor",
+                //     enforce: true
+                //   },
+                  vendor: {
+                    chunks: "initial",
+                    test: path.resolve(__dirname, "node_modules"),
+                    name: "vendor",
+                    enforce: true
+                  }
+                // vendor: {
+                //     test: /]node_modules/,
+                //     priority: -10
+                // },
+            // default: {
+            //         minChunks: 2,
+            //         priority: -20,
+            //         reuseExistingChunk: true
+            //     }
             }
         }
     },
